@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BB4F124729626C260028865B /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4F124629626C260028865B /* extensions.swift */; };
 		BB4F124929626C7D0028865B /* register.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4F124829626C7D0028865B /* register.swift */; };
+		BB7565362965DE4200958ED1 /* expenseCalculatorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */; };
 		BBA303B829633EED00C6380E /* event.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA303B729633EED00C6380E /* event.swift */; };
 		BBA828FF2962E2E10065B367 /* events.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA828FE2962E2E10065B367 /* events.swift */; };
 		BBA92725296237390031A4D4 /* UIcomponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA92724296237390031A4D4 /* UIcomponents.swift */; };
@@ -24,6 +25,7 @@
 /* Begin PBXFileReference section */
 		BB4F124629626C260028865B /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		BB4F124829626C7D0028865B /* register.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = register.swift; sourceTree = "<group>"; };
+		BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = expenseCalculatorModel.swift; sourceTree = "<group>"; };
 		BBA303B729633EED00C6380E /* event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = event.swift; sourceTree = "<group>"; };
 		BBA828FE2962E2E10065B367 /* events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = events.swift; sourceTree = "<group>"; };
 		BBA92724296237390031A4D4 /* UIcomponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIcomponents.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				BBD6B485295E03CF00C13F3A /* expensesCalculator.swift */,
+				BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */,
 				BBD6B487295E03CF00C13F3A /* login.swift */,
 				BB4F124829626C7D0028865B /* register.swift */,
 				BBA828FE2962E2E10065B367 /* events.swift */,
@@ -168,6 +171,7 @@
 				BB4F124729626C260028865B /* extensions.swift in Sources */,
 				BBAB3DA529645DBD00634635 /* eventDetails.swift in Sources */,
 				BBAB3DA729647D6900634635 /* expense.swift in Sources */,
+				BB7565362965DE4200958ED1 /* expenseCalculatorModel.swift in Sources */,
 				BBC7881B29650B9700EAAFEC /* report.swift in Sources */,
 				BBA303B829633EED00C6380E /* event.swift in Sources */,
 				BB4F124929626C7D0028865B /* register.swift in Sources */,

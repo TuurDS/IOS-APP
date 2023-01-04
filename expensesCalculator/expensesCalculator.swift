@@ -11,7 +11,7 @@ import SwiftUI
 struct expensesCalculatorApp: App {
     var body: some Scene {
         WindowGroup {
-            Expense(id:1)
+            Login().environmentObject(ExpenseCalculatorModel.shared)
         }
     }
 }
