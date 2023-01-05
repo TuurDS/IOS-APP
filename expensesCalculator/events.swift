@@ -18,19 +18,8 @@ struct Events: View {
         }
     }
     
-    @State private var isPinned: Bool = false
-    
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.40
-    
-    let cards = [
-        RoundedRectangleCard(title: "Title 1", number: "1", description: "Description 1", icon: "pin.fill", iconColor: .red, isPinned: true, id: "1"),
-        RoundedRectangleCard(title: "Title 2", number: "2", description: "Description 2", icon: "pin.fill", iconColor: .yellow, isPinned: false, id: "2"),
-        RoundedRectangleCard(title: "Title 3", number: "3", description: "Description 3", icon: "pin.fill", iconColor: .blue, isPinned: true, id: "3"),
-        RoundedRectangleCard(title: "Title 4", number: "4", description: "Description 4", icon: "pin.fill", iconColor: .green, isPinned: true, id: "4"),
-        RoundedRectangleCard(title: "Title 5", number: "5", description: "Description 5", icon: "pin.fill", iconColor: .purple, isPinned: false, id: "5")
-    ]
-
-
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -44,9 +33,7 @@ struct Events: View {
                             .font(.title)
                             .fontWeight(.medium)
                         Spacer()
-                        Button(action: {
-                            // Perform add event action
-                        }) {
+                        Button(action: model.eventsModel.addEvent) {
                             Image(systemName: "plus")
                                 .font(.title)
                                 .fontWeight(.medium)
@@ -56,7 +43,7 @@ struct Events: View {
                     .frame(width: 200)
                     
                     //pinned unpinned
-                    PinnedUnpinnedButtons(isPinned: $isPinned, basecolor:Color("basecolor"),strokeColor: .white)
+                    PinnedUnpinnedButtons(isPinned: $model.eventsModel.isPinned, basecolor:Color("basecolor"),strokeColor: .white)
                     
                     Spacer()
                     
@@ -64,7 +51,7 @@ struct Events: View {
                     HStack {
                         Spacer()
                         ArrowButton(text:"Logout",basecolor: .white, accentcolor: Color("basecolor")) {
-                            // Perform logout action
+                            model.loginModel.Logout()
                         }
                     }
                     .padding(.bottom, 16)
@@ -81,11 +68,16 @@ struct Events: View {
                 //MARK right
                 VStack(alignment: .center) {
                     
-                    List(cards) { card in
-                        RoundedRectangleCard(title: card.title, number: card.number, description: card.description, icon: card.icon, iconColor: card.iconColor, isPinned: card.isPinned, id: card.id)
+                    ScrollView {
+                        ForEach(model.eventsModel.items) { item in
+                            RoundedRectangleCard(title: item.title, number: item.number, description: item.description, icon: item.icon, iconColor: item.iconColor, isPinned: item.isPinned, id: item.id, PinEvent: {
+                                model.eventsModel.pinEvent(id: item.id)
+                            })
+                            .onTapGesture {
+                                model.eventsModel.navigateToSingleEvent(id:item.id)
+                            }
+                        }
                     }
-                    .listRowBackground(Color.clear)
-                    .listStyle(PlainListStyle())
                     
                 }
                 .padding(.top,15)
@@ -102,7 +94,7 @@ struct Events: View {
             HStack {
                 Spacer()
                 ArrowButton(text:"Logout",basecolor: Color("accentcolor"), accentcolor: .white) {
-                    // Perform logout action
+                    model.loginModel.Logout()
                 }
             }
             .padding(.trailing, 8)
@@ -113,9 +105,7 @@ struct Events: View {
                     .font(.title)
                     .fontWeight(.medium)
                 Spacer()
-                Button(action: {
-                    // Perform add event action
-                }) {
+                Button(action: model.eventsModel.addEvent) {
                     Image(systemName: "plus")
                         .font(.title)
                         .foregroundColor(Color("basecolor"))
@@ -124,14 +114,16 @@ struct Events: View {
             .padding(.horizontal, 8)
             
             //pinned unpinned
-            PinnedUnpinnedButtons(isPinned: $isPinned,basecolor:Color("accentcolor"), strokeColor: Color("basecolor"))
+            PinnedUnpinnedButtons(isPinned: $model.eventsModel.isPinned,basecolor:Color("accentcolor"), strokeColor: Color("basecolor"))
             
             ScrollView {
-                ForEach(cards) { card in
-                    RoundedRectangleCard(title: card.title, number: card.number, description: card.description, icon: card.icon, iconColor: card.iconColor, isPinned: card.isPinned, id: card.id)
+                ForEach(model.eventsModel.items) { item in
+                    RoundedRectangleCard(title: item.title, number: item.number, description: item.description, icon: item.icon, iconColor: item.iconColor, isPinned: item.isPinned, id: item.id, PinEvent: {
+                        model.eventsModel.pinEvent(id: item.id)
+                    })
                         .padding(.bottom,10)
                         .onTapGesture {
-                            print("tapped card")
+                            model.eventsModel.navigateToSingleEvent(id:item.id)
                         }
                 }
             }
@@ -190,6 +182,7 @@ struct RoundedRectangleCard: View,Identifiable {
     var iconColor: Color
     var isPinned: Bool
     var id: String
+    var PinEvent: () -> Void
     
     var body: some View {
         VStack(spacing:10) {
@@ -215,10 +208,7 @@ struct RoundedRectangleCard: View,Identifiable {
                         icon:"pin.fill",
                         basecolor: isPinned ? Color("accentcolor"): .white,
                         accentcolor: isPinned ? .white: Color("accentcolor"),
-                        action:  {
-                            print("tapped icon")
-                            
-                        },
+                        action: PinEvent,
                         font:.title2)
                     
                 }
@@ -236,6 +226,6 @@ struct RoundedRectangleCard: View,Identifiable {
 
 struct Events_Previews: PreviewProvider {
     static var previews: some View {
-        Events()
+        Events().environmentObject(ExpenseCalculatorModel.shared)
     }
 }

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct Expense: View {
-    let id: Int
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,8 +19,8 @@ struct Expense: View {
         }
     }
     
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.50
-    @ObservedObject var model = ExpenseModel()
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -36,9 +35,7 @@ struct Expense: View {
                                 .fontWeight(.medium)
                             Spacer()
                             HStack {
-                                Button(action: {
-                                    //TODO
-                                }) {
+                                Button(action: model.expenseModel.saveExpense) {
                                     Text("save")
                                         .font(.footnote)
                                         .fontWeight(.bold)
@@ -57,7 +54,7 @@ struct Expense: View {
                         VStack(alignment:.leading,spacing: 3) {
                             Text("Price")
                                 .fontWeight(.medium)
-                            TextField("", value: $model.price, formatter: numberFormatter)
+                            TextField("", value: $model.expenseModel.price, formatter: numberFormatter)
                                 .padding(.all,5)
                                 .foregroundColor(.black)
                                 .background(.white)
@@ -67,7 +64,7 @@ struct Expense: View {
                             Text("Date")
                                 .fontWeight(.medium)
                             
-                            DatePicker("", selection: $model.date, displayedComponents: .date)
+                            DatePicker("", selection: $model.expenseModel.date, displayedComponents: .date)
                                 .labelsHidden()
                                 .accentColor(Color("basecolor"))
                                 .background(.white)
@@ -81,7 +78,7 @@ struct Expense: View {
                         Text("Description")
                             .fontWeight(.medium)
                         
-                        TextEditor(text: $model.description)
+                        TextEditor(text: $model.expenseModel.description)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -94,7 +91,7 @@ struct Expense: View {
                         Text("Split Type")
                             .fontWeight(.medium)
                         
-                        SplitTypeButtons(splitType: $model.splitType, basecolor:Color("basecolor"),strokeColor: .white)
+                        SplitTypeButtons(splitType: $model.expenseModel.splitType, basecolor:Color("basecolor"),strokeColor: .white)
                             
                     }
                     
@@ -102,7 +99,7 @@ struct Expense: View {
                     HStack {
                         Spacer()
                         ArrowButton(text:"back",basecolor:.white,accentcolor:Color("basecolor")) {
-                            
+                            model.navigateBack()
                         }
                         .frame(width: 80)
                         .padding(.trailing,-4)
@@ -131,7 +128,7 @@ struct Expense: View {
 
                     //list of users
                     ScrollView {
-                        ForEach($model.persons) { ep in
+                        ForEach($model.expenseModel.persons) { ep in
                             HStack {
                                 Text(ep.name.wrappedValue)
                                 
@@ -143,8 +140,8 @@ struct Expense: View {
                                     .cornerRadius(5)
                                     .frame(maxWidth: 70)
                                     .multilineTextAlignment(.center)
-                                    .disabled(model.splitType == "equal")
-                                    .opacity(model.splitType == "equal" ? 0.85 : 1)
+                                    .disabled(model.expenseModel.splitType == "equal")
+                                    .opacity(model.expenseModel.splitType == "equal" ? 0.85 : 1)
                             }
                             .padding(.all, 10)
                             .background(Color("accentcolor"))
@@ -175,9 +172,7 @@ struct Expense: View {
                     .fontWeight(.medium)
                 Spacer()
                 HStack {
-                    Button(action: {
-                        print(self.model)
-                    }) {
+                    Button(action: model.expenseModel.saveExpense) {
                         Text("save")
                             .font(.footnote)
                             .fontWeight(.bold)
@@ -189,7 +184,7 @@ struct Expense: View {
                     .foregroundColor(.white)
                     
                     ArrowButton(text:"back",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.navigateBack()
                     }
                     .frame(width: 80)
                     .padding(.trailing,-5)
@@ -200,7 +195,7 @@ struct Expense: View {
                 VStack(alignment:.leading,spacing: 3) {
                     Text("Price")
                         .foregroundColor(Color("basecolor"))
-                    TextField("", value: $model.price, formatter: numberFormatter)
+                    TextField("", value: $model.expenseModel.price, formatter: numberFormatter)
                         .padding(.horizontal, 15)
                         .frame(height: 40)
                         .overlay(
@@ -213,7 +208,7 @@ struct Expense: View {
                     Text("Date")
                         .foregroundColor(Color("basecolor"))
                     
-                    DatePicker("", selection: $model.date, displayedComponents: .date)
+                    DatePicker("", selection: $model.expenseModel.date, displayedComponents: .date)
                         .labelsHidden()
                         .accentColor(Color("basecolor"))
                         .foregroundColor(.white)
@@ -227,7 +222,7 @@ struct Expense: View {
                 Text("Description")
                     .foregroundColor(Color("basecolor"))
                 
-                TextEditor(text: $model.description)
+                TextEditor(text: $model.expenseModel.description)
                     .padding(.horizontal, 15)
                     .frame(height: 75)
                     .overlay(
@@ -242,7 +237,7 @@ struct Expense: View {
                 Text("Split Type")
                     .foregroundColor(Color("basecolor"))
                 
-                SplitTypeButtons(splitType: $model.splitType, basecolor: Color("accentcolor"), strokeColor: Color("accentcolor"))
+                SplitTypeButtons(splitType: $model.expenseModel.splitType, basecolor: Color("accentcolor"), strokeColor: Color("accentcolor"))
                     
             }
             
@@ -256,7 +251,7 @@ struct Expense: View {
 
             //list of users
             ScrollView {
-                ForEach($model.persons) { ep in
+                ForEach($model.expenseModel.persons) { ep in
                     HStack {
                         Text(ep.name.wrappedValue)
                         
@@ -268,8 +263,8 @@ struct Expense: View {
                             .cornerRadius(5)
                             .frame(maxWidth: 70)
                             .multilineTextAlignment(.center)
-                            .disabled(model.splitType == "equal")
-                            .opacity(model.splitType == "equal" ? 0.85 : 1)
+                            .disabled(model.expenseModel.splitType == "equal")
+                            .opacity(model.expenseModel.splitType == "equal" ? 0.85 : 1)
                     }
                     .padding(.all, 10)
                     .background(Color("accentcolor"))
@@ -294,63 +289,9 @@ let numberFormatter: NumberFormatter = {
   return formatter
 }()
 
-class ExpenseModel: ObservableObject {
-    
-    @Published var price: Double{
-        didSet {
-            if splitType == "equal" {
-                distributeAmountEqual()
-            }
-        }
-    }
-    var description: String
-    @Published var splitType: String {
-        didSet {
-            if splitType == "equal" {
-                distributeAmountEqual()
-            }
-        }
-    }
-    var date: Date
-    var persons: [ExpensePerson]
-    
-    init() {
-        price = 102.54
-        description = "this is the description of the expense"
-        splitType = "percentage"
-        date = Date()
-        persons = [
-            ExpensePerson(name: "Alice", value: 30.20),
-            ExpensePerson(name: "Bob", value: 30.20),
-            ExpensePerson(name: "Eve", value: 42.14)
-        ]
-    }
-    
-    func distributeAmountEqual() {
-        let totalAmount = self.price
-        let numPersons = self.persons.count
-        let equalAmount = totalAmount / Double(numPersons)
-
-        for person in self.persons {
-            person.value = equalAmount
-        }
-    }
-}
-
-
-class ExpensePerson: Identifiable {
-    var value: Double
-    var name: String
-    
-    init(name:String,value:Double) {
-        self.name = name
-        self.value = value
-    }
-}
-
 
 struct Expense_Previews: PreviewProvider {
     static var previews: some View {
-        Expense(id:1)
+        Expense().environmentObject(ExpenseCalculatorModel.shared)
     }
 }

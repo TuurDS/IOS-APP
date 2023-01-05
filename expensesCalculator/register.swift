@@ -18,12 +18,8 @@ struct Register: View {
         }
     }
     
-    @State private var username: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-    @State private var errorText: String = ""
-    @State var focusedField: String = "-1"
     
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.4
     
     var landscape: some View {
@@ -40,7 +36,7 @@ struct Register: View {
                         .font(.callout)
                         .fontWeight(Font.Weight.bold)
 
-                    Button(action: navigateToLogin) {
+                    Button(action: model.navigateBack) {
                         Text("Log In")
                             .fontWeight(Font.Weight.bold)
                             .padding(.vertical, 16)
@@ -66,36 +62,36 @@ struct Register: View {
                     
                     VStack(alignment: .center) {
                         HighlightableTextField(
-                            text: $username,
+                            text: $model.registerModel.login,
                             placeholder: "Username",
                             isSecure: false,
-                            focusedField: $focusedField ,
+                            focusedField: $model.registerModel.focusedField ,
                             id: "1")
                         .frame(maxWidth: 300)
                         HighlightableTextField(
-                            text: $password,
+                            text: $model.registerModel.password,
                             placeholder: "Password",
                             isSecure: true,
-                            focusedField: $focusedField,
+                            focusedField: $model.registerModel.focusedField,
                             id: "2")
                         .frame(maxWidth: 300)
                         HighlightableTextField(
-                            text: $confirmPassword,
+                            text: $model.registerModel.passwordConfirm,
                             placeholder: "Confirm Password",
                             isSecure: true,
-                            focusedField: $focusedField,
+                            focusedField: $model.registerModel.focusedField,
                             id: "3")
                         .frame(maxWidth:300)
                     }
                     .padding(.horizontal, 16)
                     
-                    Text(errorText)
+                    Text(model.registerModel.errorText)
                         .font(.callout)
                         .foregroundColor(.red)
                         .padding(.bottom, 16)
-                        .opacity(errorText.isEmpty ? 0 : 1)
+                        .opacity(model.registerModel.errorText.isEmpty ? 0 : 1)
                     
-                    Button(action: register) {
+                    Button(action: model.registerModel.Register) {
                         Text("Register")
                             .padding(.vertical, 16)
                             .padding(.horizontal, 32)
@@ -124,36 +120,36 @@ struct Register: View {
 
             VStack(alignment: .center) {
                 HighlightableTextField(
-                    text: $username,
+                    text: $model.registerModel.login,
                     placeholder: "Username",
                     isSecure: false,
-                    focusedField: $focusedField ,
+                    focusedField: $model.registerModel.focusedField ,
                     id: "1")
                     .frame(maxWidth: 400)
                 HighlightableTextField(
-                    text: $password,
+                    text: $model.registerModel.password,
                     placeholder: "Password",
                     isSecure: true,
-                    focusedField: $focusedField,
+                    focusedField: $model.registerModel.focusedField,
                     id: "2")
                     .frame(maxWidth: 400)
                 HighlightableTextField(
-                    text: $confirmPassword,
+                    text: $model.registerModel.passwordConfirm,
                     placeholder: "Confirm Password",
                     isSecure: true,
-                    focusedField: $focusedField,
+                    focusedField: $model.registerModel.focusedField,
                     id: "3")
                     .frame(maxWidth: 400)
             }
             .padding(.horizontal, 16)
 
-            Text(errorText)
+            Text(model.registerModel.errorText)
                 .font(.callout)
                 .foregroundColor(.red)
                 .padding(.bottom, 16)
-                .opacity(errorText.isEmpty ? 0 : 1)
+                .opacity(model.registerModel.errorText.isEmpty ? 0 : 1)
 
-            Button(action: register) {
+            Button(action: model.registerModel.Register) {
                 Text("Register")
                     .padding(.vertical, 16)
                     .padding(.horizontal, 32)
@@ -167,7 +163,7 @@ struct Register: View {
 
             HStack {
                 Text("Already have an account?")
-                Button(action: navigateToLogin) {
+                Button(action: model.navigateBack) {
                     Text("Log In")
                         .underline(true)
                         .font(.callout)
@@ -180,22 +176,11 @@ struct Register: View {
             .background(Color.init(hex: "EFEBF2"))
         }
     }
-    
-    
-    
-    private func register() {
-        // Perform register here
-        errorText = "Invalid login details"
-    }
-
-    private func navigateToLogin() {
-        // Navigate to login screen here
-    }
 }
 
 
 struct Register_Previews: PreviewProvider {
     static var previews: some View {
-        Register()
+        Register().environmentObject(ExpenseCalculatorModel.shared)
     }
 }

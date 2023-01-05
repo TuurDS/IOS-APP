@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct Event: View {
-    var id: Int
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,15 +19,8 @@ struct Event: View {
         }
     }
     
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.35
-    
-    let expenseCards = [
-        ExpenseCard(amount: 12.99, username: "Jane", description: "Grocery Shopping", id: "1"),
-        ExpenseCard(amount: 56.34, username: "Bob", description: "Dinner at Restaurant", id: "2"),
-        ExpenseCard(amount: 78.45, username: "Alice", description: "Rent for August", id: "3"),
-        ExpenseCard(amount: 156.34, username: "Thomas", description: "Food", id: "4"),
-        ExpenseCard(amount: 72.49, username: "Jake", description: "Utilities", id: "5"),
-    ]
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -44,26 +36,26 @@ struct Event: View {
                         Spacer()
                         HStack {
                             IconButton(icon:"pencil",basecolor:.white,accentcolor:Color("basecolor")) {
-                                
+                                model.eventModel.navigateToEventDetails(id:model.eventModel.id)
                             }
                             IconButton(icon:"chart.bar.xaxis",basecolor:.white,accentcolor:Color("basecolor")) {
-                                
+                                model.eventModel.navigateToReport(id:model.eventModel.id)
                             }
                             IconButton(icon:"trash",basecolor:.white,accentcolor:Color("basecolor")) {
-                                
+                                model.eventModel.deleteEvent(id:model.eventModel.id)
                             }
                         }
                     }
                     
                     VStack(spacing: 10) {
                         HStack {
-                            Text("this is the name")
+                            Text(model.eventModel.name)
                                 .font(.headline)
                                 .underline()
                             Spacer()
                         }
                         HStack {
-                            Text("this is the entire discription of this event. Why it is an event. It is the explanation of the event you want to track.")
+                            Text(model.eventModel.description)
                             Spacer()
                         }
                     }
@@ -73,7 +65,7 @@ struct Event: View {
                     HStack {
                         Spacer()
                         ArrowButton(text:"back",basecolor:.white,accentcolor:Color("basecolor")) {
-                            
+                            model.navigateBack()
                         }
                         .frame(width: 80)
                     }
@@ -96,9 +88,7 @@ struct Event: View {
                         Text("Expenses")
                             .font(.title2)
                             .fontWeight(.medium)
-                        Button(action: {
-                            // Perform add expense add action
-                        }) {
+                        Button(action: model.eventModel.addExpense) {
                             Image(systemName: "plus")
                                 .font(.title)
                                 .foregroundColor(Color("basecolor"))
@@ -107,9 +97,14 @@ struct Event: View {
                     }
                     //list
                     ScrollView {
-                        ForEach(expenseCards) { card in
-                                ExpenseCard(amount: card.amount, username: card.username, description: card.description, id: card.id)
-                                .padding(.bottom,10)
+                        ForEach(model.eventModel.items) { item in
+                            ExpenseCard(amount: item.amount, username: item.person, description: item.description, id: item.id, deleteExpense: {
+                                model.eventModel.deleteEvent(id: item.id)
+                            })
+                            .padding(.bottom,10)
+                            .onTapGesture {
+                                model.eventModel.navigateToExpense(id: item.id)
+                            }
                         }
                     }
                     .padding(.horizontal,10)
@@ -133,17 +128,17 @@ struct Event: View {
                 Spacer()
                 HStack {
                     IconButton(icon:"pencil",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.eventModel.navigateToEventDetails(id:model.eventModel.id)
                     }
                     IconButton(icon:"chart.bar.xaxis",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.eventModel.navigateToReport(id:model.eventModel.id)
                     }
                     IconButton(icon:"trash",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.eventModel.deleteEvent(id:model.eventModel.id)
                     }
                     
                     ArrowButton(text:"back",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.navigateBack()
                     }
                     .frame(width: 80)
                 }
@@ -152,14 +147,14 @@ struct Event: View {
             //name and description
             VStack(spacing: 10) {
                 HStack {
-                    Text("this is the name")
+                    Text(model.eventModel.name)
                         .font(.headline)
                         .underline()
                         .foregroundColor(Color("lightgrey"))
                     Spacer()
                 }
                 HStack {
-                    Text("this is the entire discription of this event. Why it is an event. It is the explanation of the event you want to track.")
+                    Text(model.eventModel.description)
                         .foregroundColor(Color("lightgrey"))
                     Spacer()
                 }
@@ -172,9 +167,7 @@ struct Event: View {
                     .font(.title2)
                     .fontWeight(.medium)
                 Spacer()
-                Button(action: {
-                    // Perform add expense add action
-                }) {
+                Button(action: model.eventModel.addExpense) {
                     Image(systemName: "plus")
                         .font(.title)
                         .foregroundColor(Color("basecolor"))
@@ -182,9 +175,14 @@ struct Event: View {
             }
             //list
             ScrollView {
-                ForEach(expenseCards) { card in
-                        ExpenseCard(amount: card.amount, username: card.username, description: card.description, id: card.id)
-                        .padding(.bottom,10)
+                ForEach(model.eventModel.items) { item in
+                    ExpenseCard(amount: item.amount, username: item.person, description: item.description, id: item.id, deleteExpense: {
+                        model.eventModel.deleteEvent(id: item.id)
+                    })
+                    .padding(.bottom,10)
+                    .onTapGesture {
+                        model.eventModel.navigateToExpense(id: item.id)
+                    }
                 }
             }
 
@@ -201,6 +199,7 @@ struct ExpenseCard: View,Identifiable {
     var username: String
     var description: String
     var id: String
+    var deleteExpense: () -> Void
     
     var body: some View {
         VStack(spacing:10) {
@@ -215,7 +214,7 @@ struct ExpenseCard: View,Identifiable {
                 
                 Spacer()
                 IconButton(icon:"trash",basecolor:Color("accentcolor"),accentcolor:.white) {
-                    
+                    deleteExpense()
                 }
             }
             HStack {
@@ -236,6 +235,6 @@ struct ExpenseCard: View,Identifiable {
 
 struct Event_Previews: PreviewProvider {
     static var previews: some View {
-        Event(id:1)
+        Event().environmentObject(ExpenseCalculatorModel.shared)
     }
 }

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct Report: View {
-    let id: Int
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,8 +19,8 @@ struct Report: View {
         }
     }
     
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.35
-    @ObservedObject var model = ReportModel()
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -35,7 +34,7 @@ struct Report: View {
                     Spacer()
                     
                     ArrowButton(text:"back",basecolor:.white,accentcolor:Color("basecolor")) {
-                        
+                        model.navigateBack()
                     }
                     .frame(width: 80)
                     .padding(.trailing,-5)
@@ -63,7 +62,7 @@ struct Report: View {
 
                     //list of users
                     ScrollView {
-                        ForEach($model.reports) { report in
+                        ForEach($model.reportModel.reports) { report in
                             HStack {
                                 Text(report.from.wrappedValue)
                                     .frame(width: 100)
@@ -120,7 +119,7 @@ struct Report: View {
                 Spacer()
                 
                 ArrowButton(text:"back",basecolor:Color("accentcolor"),accentcolor:.white) {
-                    
+                    model.navigateBack()
                 }
                 .frame(width: 80)
                 .padding(.trailing,-5)
@@ -135,7 +134,7 @@ struct Report: View {
 
             //list of users
             ScrollView {
-                ForEach($model.reports) { report in
+                ForEach($model.reportModel.reports) { report in
                     HStack {
                         Text(report.from.wrappedValue)
                             .frame(width: 100)
@@ -178,36 +177,8 @@ struct Report: View {
     
 }
 
-class ReportModel: ObservableObject {
-    
-    var reports: [SingleReport]
-    
-    init() {
-        reports = [
-            SingleReport(from: "Alice",to: "Bob",amount: 14.68, id: "1"),
-            SingleReport(from: "jNic",to: "leah",amount: 145.54, id: "2"),
-            SingleReport(from: "jonas",to: "jeff",amount: 23.16, id: "3"),
-            SingleReport(from: "thomas",to: "arthur",amount: 0.68, id: "4"),
-        ]
-    }
-}
-
-class SingleReport: Identifiable {
-    var from: String
-    var to: String
-    var amount: Double
-    var id: String
-    
-    init(from: String, to: String, amount: Double, id:String) {
-        self.from = from
-        self.to = to
-        self.amount = amount
-        self.id = id
-    }
-}
-
 struct Report_Previews: PreviewProvider {
     static var previews: some View {
-        Report(id:1)
+        Report().environmentObject(ExpenseCalculatorModel.shared)
     }
 }

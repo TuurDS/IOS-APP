@@ -18,18 +18,21 @@ struct Login: View {
                 }
             }
             .navigationDestination(for: String.self) { string in
-                Events().navigationBarBackButtonHidden(true)
+                switch string {
+                    case "register": Register().navigationBarBackButtonHidden(true)
+                    case "events": Events().navigationBarBackButtonHidden(true)
+                    case "event": Event().navigationBarBackButtonHidden(true)
+                    case "eventdetails": EventDetails().navigationBarBackButtonHidden(true)
+                    case "expense": Expense().navigationBarBackButtonHidden(true)
+                    case "report": Report().navigationBarBackButtonHidden(true)
+                default:
+                    Login().navigationBarBackButtonHidden(true)
+                }
             }
         }
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
-    
-//    @State private var username: String = ""
-//    @State private var password: String = ""
-//    @State private var errorText: String = ""
-//    @State var focusedField: String = "-1"
-    
     let sidebarSize: CGFloat = 0.4
     
     var landscape: some View {
@@ -45,7 +48,9 @@ struct Login: View {
                             .font(.callout)
                             .fontWeight(Font.Weight.bold)
                         
-                        Button(action: navigateToSignUp) {
+                        Button(action: {
+                            model.path.append("register")
+                        }) {
                             Text("Sign Up")
                                 .fontWeight(Font.Weight.bold)
                                 .padding(.vertical, 16)
@@ -157,7 +162,9 @@ struct Login: View {
                 
                 HStack {
                     Text("Don't have an account?")
-                    Button(action: navigateToSignUp) {
+                    Button(action: {
+                        model.path.append("register")
+                    }) {
                         Text("Sign Up")
                             .underline(true)
                             .font(.callout)
@@ -169,10 +176,6 @@ struct Login: View {
                 .padding(.horizontal, 16)
                 .background(Color.init(hex: "EFEBF2"))
             }
-    }
-    
-    private func navigateToSignUp() {
-        // Navigate to sign up screen here
     }
 }
 

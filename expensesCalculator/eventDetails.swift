@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct EventDetails: View {
-    var id: Int
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,21 +19,8 @@ struct EventDetails: View {
         }
     }
     
+    @EnvironmentObject var model: ExpenseCalculatorModel
     let sidebarSize: CGFloat = 0.35
-    
-    let persons = [
-        Person(name:"max",id:"1"),
-        Person(name:"tom",id:"2"),
-        Person(name:"jerry",id:"3"),
-        Person(name:"duncan",id:"4"),
-        Person(name:"james",id:"5"),
-        Person(name:"corey",id:"6")
-    ]
-    
-    
-    @State private var newUser: String = ""
-    @State private var eventname: String = ""
-    @State private var eventdescription: String = ""
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -48,9 +34,7 @@ struct EventDetails: View {
                             .fontWeight(.medium)
                         Spacer()
                         HStack {
-                            Button(action: {
-                                //TODO
-                            }) {
+                            Button(action: model.eventDetailsModel.saveDetails) {
                                 Text("save")
                                     .font(.footnote)
                                     .fontWeight(.bold)
@@ -70,7 +54,7 @@ struct EventDetails: View {
                                 .font(.headline)
                             Spacer()
                         }
-                        TextField("", text: $eventname)
+                        TextField("", text: $model.eventDetailsModel.eventname)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -81,7 +65,7 @@ struct EventDetails: View {
                             Spacer()
                         }
                         .padding(.top, 10)
-                        TextEditor(text: $eventdescription)
+                        TextEditor(text: $model.eventDetailsModel.eventdescription)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -93,7 +77,7 @@ struct EventDetails: View {
                     HStack {
                         Spacer()
                         ArrowButton(text:"back",basecolor:.white,accentcolor:Color("basecolor")) {
-                            
+                            model.navigateBack()
                         }
                         .frame(width: 80)
                         .padding(.trailing,-4)
@@ -123,15 +107,13 @@ struct EventDetails: View {
                     ScrollView {
                         //add
                         HStack {
-                            InvertedTextField(text: $newUser, placeholder: "name", id: "1")
+                            InvertedTextField(text: $model.eventDetailsModel.newUser, placeholder: "name", id: "1")
                             Spacer()
                             IconButton(
                                 icon:"plus",
                                 basecolor: Color("accentcolor"),
                                 accentcolor: .white,
-                                action:  {
-                                    print("tapped icon")
-                                },
+                                action: model.eventDetailsModel.addPerson,
                                 font:.title)
                         }
                         .padding(.all, 10)
@@ -140,7 +122,7 @@ struct EventDetails: View {
                         .cornerRadius(5)
                         .padding(.bottom,10)
                         //list
-                        ForEach(persons) { person in
+                        ForEach(model.eventDetailsModel.persons) { person in
                             Person(name:person.name,id:person.id)
                                 .padding(.bottom,10)
                         }
@@ -165,9 +147,7 @@ struct EventDetails: View {
                     .fontWeight(.medium)
                 Spacer()
                 HStack {
-                    Button(action: {
-                        //TODO
-                    }) {
+                    Button(action: model.eventDetailsModel.saveDetails) {
                         Text("save")
                             .font(.footnote)
                             .fontWeight(.bold)
@@ -179,7 +159,7 @@ struct EventDetails: View {
                     .foregroundColor(.white)
                     
                     ArrowButton(text:"back",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        
+                        model.navigateBack()
                     }
                     .frame(width: 80)
                 }
@@ -192,7 +172,7 @@ struct EventDetails: View {
                         .font(.headline)
                     Spacer()
                 }
-                TextField("", text: $eventname)
+                TextField("", text: $model.eventDetailsModel.eventname)
                     .padding(.horizontal, 15)
                     .frame(height: 50)
                     .overlay(
@@ -206,7 +186,7 @@ struct EventDetails: View {
                     Spacer()
                 }
                 .padding(.top, 10)
-                TextEditor(text: $eventdescription)
+                TextEditor(text: $model.eventDetailsModel.eventdescription)
                     .padding(.horizontal, 15)
                     .frame(height: 75)
                     .overlay(
@@ -228,7 +208,7 @@ struct EventDetails: View {
             ScrollView {
                 //add
                 HStack {
-                    InvertedTextField(text: $newUser, placeholder: "name", id: "1")
+                    InvertedTextField(text: $model.eventDetailsModel.newUser, placeholder: "name", id: "1")
                     Spacer()
                     IconButton(
                         icon:"plus",
@@ -245,7 +225,7 @@ struct EventDetails: View {
                 .cornerRadius(5)
                 .padding(.bottom,10)
                 //list
-                ForEach(persons) { person in
+                ForEach(model.eventDetailsModel.persons) { person in
                     Person(name:person.name,id:person.id)
                         .padding(.bottom,10)
                 }
@@ -276,6 +256,6 @@ struct Person: View, Identifiable {
 
 struct EventDetails_Previews: PreviewProvider {
     static var previews: some View {
-        EventDetails(id:1)
+        EventDetails().environmentObject(ExpenseCalculatorModel.shared)
     }
 }
