@@ -7,25 +7,90 @@
 
 import SwiftUI
 
+//START REQUEST CLASS
+import Foundation
+
+class Request {
+    enum Method: String {
+        case get = "GET"
+        case post = "POST"
+        case put = "PUT"
+        case delete = "DELETE"
+    }
+    
+    let baseURL: URL = URL(string:"http://192.168.2.130:5000/api/")!
+    var token: String = ""
+    
+    func setToken(token: String) {
+        self.token = token
+    }
+    
+    func send(method: Method, path: String, body: Data? = nil, completion: @escaping (Result<Any, Error>) -> Void) {
+        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        request.httpMethod = method.rawValue
+        request.httpBody = body
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if token != "" {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data, let response = response as? HTTPURLResponse else {
+                completion(.failure(NSError(domain: "", code: 0, userInfo: nil)))
+                return
+            }
+            
+            if response.statusCode >= 400 {
+                // handle error case
+                let json = try? JSONSerialization.jsonObject(with: data, options: [])
+                if let json = json as? [String: Any], let message = json["message"] as? String {
+                    completion(.failure(NSError(domain: message, code: response.statusCode, userInfo: nil)))
+                } else {
+                    completion(.failure(NSError(domain: "Unknown error", code: response.statusCode, userInfo: nil)))
+                }
+            } else {
+                // handle success case
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data, options: [])
+                    completion(.success(json))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
+    }
+}
+
+
+//END REQUEST CLASS
+
 //START SHARED MODEL
 class ExpenseCalculatorModel: ObservableObject {
     
     static let shared = ExpenseCalculatorModel()
 
     @Published var path = [String]()
-    @Published var loginModel: LoginModel
-    @Published var registerModel: RegisterModel
-    @Published var eventsModel: EventsModel
-    @Published var eventModel: EventModel
-    @Published var eventDetailsModel: EventDetailsModel
-    @Published var expenseModel: ExpenseModel
-    @Published var reportModel: ReportModel
-
+    @ObservedObject var loginModel: LoginModel
+    @ObservedObject var registerModel: RegisterModel
+    @ObservedObject var eventsModel: EventsModel
+    @ObservedObject var eventModel: EventModel
+    @ObservedObject var eventDetailsModel: EventDetailsModel
+    @ObservedObject var expenseModel: ExpenseModel
+    @ObservedObject var reportModel: ReportModel
+    
+    static let request = Request()
+    
     private init() {
         self.path = []
         self.loginModel = LoginModel()
         self.registerModel = RegisterModel()
-        self.eventsModel = EventsModel()
+        self.eventsModel = EventsModel(canFetch: false)
         self.eventModel = EventModel(id: "")
         self.eventDetailsModel = EventDetailsModel(id: "")
         self.expenseModel = ExpenseModel(id: "")
@@ -41,11 +106,11 @@ class ExpenseCalculatorModel: ObservableObject {
 //END SHARED MODEL
 
 //START LOGIN PAGE
-class LoginModel {
-    var login: String
-    var password: String
-    var errorText: String
-    var focusedField: String
+class LoginModel:ObservableObject  {
+    @Published var login: String
+    @Published var password: String
+    @Published var errorText: String
+    @Published var focusedField: String
     var isLoggedIn: Bool
     
     init() {
@@ -57,26 +122,53 @@ class LoginModel {
     }
     
     func Login() {
-        isLoggedIn = true;
-        ExpenseCalculatorModel.shared.eventsModel = EventsModel()
-        ExpenseCalculatorModel.shared.path.append("events")
+        let body = LoginRegisterRequestBody(name: login, password: password)
+        let bodyData = try? JSONEncoder().encode(body)
+        
+        ExpenseCalculatorModel.request.send(method: .post, path: "user/login", body: bodyData) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    // handle success case
+                    if let json = json as? [String: Any], let token = json["token"] as? String {
+                        ExpenseCalculatorModel.request.setToken(token: token)
+                        self.isLoggedIn = true
+                        ExpenseCalculatorModel.shared.eventsModel = EventsModel(canFetch: true)
+                        ExpenseCalculatorModel.shared.path.append("events")
+                        self.errorText = ""
+                    } else {
+                        self.errorText = "Invalid response from server"
+                    }
+                case .failure(let error as NSError):
+                    self.errorText = error.domain
+                }
+            }
+        }
     }
-    
+
     func Logout() {
-        //todo remove token
+        isLoggedIn = false
+        ExpenseCalculatorModel.request.setToken(token: "")
         ExpenseCalculatorModel.shared.navigateBack()
     }
     
+    
+    
 }
+struct LoginRegisterRequestBody: Codable {
+    var name: String = ""
+    var password: String = ""
+}
+
 //END LOGIN PAGE
 
 //START REGISTER PAGE
-class RegisterModel {
-    var login: String
-    var password: String
-    var passwordConfirm: String
-    var errorText: String
-    var focusedField: String
+class RegisterModel:ObservableObject  {
+    @Published var login: String
+    @Published var password: String
+    @Published var passwordConfirm: String
+    @Published var errorText: String
+    @Published var focusedField: String
     
     init() {
         self.login = ""
@@ -87,60 +179,194 @@ class RegisterModel {
     }
     
     func Register() {
-        ExpenseCalculatorModel.shared.eventsModel = EventsModel()
-        ExpenseCalculatorModel.shared.path.append("events")
+        // Check if the password and passwordConfirm fields are filled in
+        if password.isEmpty || passwordConfirm.isEmpty {
+            self.errorText = "Please enter a password and confirm it."
+            return
+        }
+
+        // Check if the password and passwordConfirm fields are equal
+        if password != passwordConfirm {
+            self.errorText = "The passwords do not match."
+            return
+        }
+
+        let body = LoginRegisterRequestBody(name: login, password: password)
+        let bodyData = try? JSONEncoder().encode(body)
+
+        ExpenseCalculatorModel.request.send(method: .post, path: "user/register", body: bodyData) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    // handle success case
+                    if let json = json as? [String: Any], let token = json["token"] as? String {
+                        ExpenseCalculatorModel.request.setToken(token: token)
+                        ExpenseCalculatorModel.shared.eventsModel = EventsModel(canFetch: true)
+                        ExpenseCalculatorModel.shared.path.append("events")
+                        self.errorText = ""
+                    } else {
+                        self.errorText = "Invalid response from server"
+                    }
+                case .failure(let error as NSError):
+                    self.errorText = error.domain
+                }
+            }
+        }
     }
+
 
 }
 //END REGISTER PAGE
 
 //START EVENTS PAGE
-class EventsModel {
-    var isPinned: Bool
-    var items = [EventsModelItem]()
+class EventsModel:ObservableObject {
+    @Published var items = [EventsModelItem]()
+    @Published var isPinned: Bool{
+        didSet {
+            filterItems()
+        }
+    }
+    @Published var fetchedItems = [EventsModelItem]() {
+        didSet {
+            filterItems()
+        }
+    }
+
     
-    init() {
-        self.isPinned = false
-        self.items = [
-            EventsModelItem(title: "Title 1", number: "1", description: "Description 1", icon: "pin.fill", iconColor: .red, isPinned: true, id: "1"),
-            EventsModelItem(title: "Title 2", number: "2", description: "Description 2", icon: "pin.fill", iconColor: .yellow, isPinned: false, id: "2"),
-            EventsModelItem(title: "Title 3", number: "3", description: "Description 3", icon: "pin.fill", iconColor: .blue, isPinned: true, id: "3"),
-            EventsModelItem(title: "Title 4", number: "4", description: "Description 4", icon: "pin.fill", iconColor: .green, isPinned: true, id: "4"),
-            EventsModelItem(title: "Title 5", number: "5", description: "Description 5", icon: "pin.fill", iconColor: .purple, isPinned: false, id: "5")
-        ]
+    init(canFetch:Bool) {
+        self.isPinned = true
+        if(canFetch) {
+            fetchEvents()
+        }
     }
     
-    func fetchEvent() {
-        //todo
+    func filterItems() {
+        if isPinned {
+            items = fetchedItems.filter { $0.isPinned }
+        } else {
+            items = fetchedItems.filter { !$0.isPinned }
+        }
     }
+
+    
+    func fetchEvents() {
+        ExpenseCalculatorModel.request.send(method: .get, path: "event") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    // handle success case
+                    if let json = json as? [[String: Any]] {
+                        self.fetchedItems = json.map {
+                            let id = $0["id"] as? String ?? ""
+                            let name = $0["name"] as? String ?? ""
+                            let description = $0["description"] as? String ?? ""
+                            let pinned = $0["pinned"] as? Bool ?? false
+                            return EventsModelItem(title: name, description: description,
+                                                   icon: "pin.fill", isPinned: pinned, id: id)
+                       }
+                        
+                    } else {
+                       print("there was an error while trying to parse the response")
+                    }
+                case .failure(let error as NSError):
+                   print(error)
+                }
+            }
+        }
+    }
+    
     func addEvent() {
-        //todo
+        ExpenseCalculatorModel.request.send(method: .post, path: "event") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    // handle success case
+                    if let json = json as? [String: Any], let eventId = json["eventId"] as? String {
+                        self.fetchEvents()
+                        ExpenseCalculatorModel.shared.eventModel = EventModel(id:eventId)
+                        ExpenseCalculatorModel.shared.path.append("event")
+                    } else {
+                        print("there was an error while trying to parse the response")
+                    }
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
     }
-    func pinEvent(id:String) {
-        //todo
+
+
+    
+    func pinEvent(id: String) {
+        if let index = self.fetchedItems.firstIndex(where: { $0.id == id }) {
+            let body = PinEventBody(id: id, pinned: !self.fetchedItems[index].isPinned)
+            let bodyData = try? JSONEncoder().encode(body)
+
+            ExpenseCalculatorModel.request.send(method: .put, path: "event/pin", body: bodyData) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        // refresh the view
+                        self.fetchEvents()
+                    case .failure(let error as NSError):
+                        print(error)
+                    }
+                }
+            }
+        }
     }
+
+    
     func navigateToSingleEvent(id:String) {
         ExpenseCalculatorModel.shared.eventModel = EventModel(id:id)
         ExpenseCalculatorModel.shared.path.append("event")
     }
-    
 }
 
-class EventsModelItem: Identifiable {
-  var title: String
-  var number: String
-  var description: String
-  var icon: String
-  var iconColor: Color
-  var isPinned: Bool
-  var id: String
+struct CreateEvent: Codable {
+    let message, eventID: String
+    let status: Int
 
-  init(title: String, number: String, description: String, icon: String, iconColor: Color, isPinned: Bool, id: String) {
+    enum CodingKeys: String, CodingKey {
+        case message
+        case eventID = "eventId"
+        case status
+    }
+}
+
+
+struct PinEventBody: Codable {
+    let id: String
+    let pinned: Bool
+}
+
+struct AllEvent: Codable {
+    let id, name, allEventDescription: String
+    let pinned: Bool
+    let createdAt, updatedAt, userID: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case allEventDescription = "description"
+        case pinned, createdAt, updatedAt
+        case userID = "UserId"
+    }
+}
+
+typealias AllEvents = [AllEvent]
+
+
+class EventsModelItem: Identifiable {
+    @Published var title: String
+    @Published var description: String
+    @Published var icon: String
+    @Published var isPinned: Bool
+    var id: String
+
+  init(title: String, description: String, icon: String, isPinned: Bool, id: String) {
     self.title = title
-    self.number = number
     self.description = description
     self.icon = icon
-    self.iconColor = iconColor
     self.isPinned = isPinned
     self.id = id
   }
@@ -148,11 +374,11 @@ class EventsModelItem: Identifiable {
 //END EVENTS PAGE
 
 //START EVENT PAGE
-class EventModel {
+class EventModel:ObservableObject  {
     var id: String
-    var name: String
-    var description: String
-    var items = [EventModelItem]()
+    @Published var name: String
+    @Published var description: String
+    @Published var items = [EventModelItem]()
     
     init(id:String) {
         self.id = id
@@ -214,12 +440,12 @@ class EventModelItem: Identifiable {
 //END EVENT PAGE
 
 //START EVENTDETAILS PAGE
-class EventDetailsModel {
+class EventDetailsModel:ObservableObject  {
     var id: String
-    var newUser: String
-    var eventname: String
-    var eventdescription: String
-    var persons = [EventDetailsModelPersons]()
+    @Published var newUser: String
+    @Published var eventname: String
+    @Published var eventdescription: String
+    @Published var persons = [EventDetailsModelPersons]()
     
     init(id: String) {
         self.id = ""
@@ -257,9 +483,9 @@ class EventDetailsModelPersons: Identifiable {
 //END EVENTDETAILS PAGE
 
 //START EXPENSE PAGE
-class ExpenseModel {
+class ExpenseModel: ObservableObject {
     
-    var price: Double{
+    @Published var price: Double{
         didSet {
             if splitType == "equal" {
                 distributeAmountEqual()
@@ -267,8 +493,8 @@ class ExpenseModel {
         }
     }
     
-    var description: String
-    var splitType: String {
+    @Published var description: String
+    @Published var splitType: String {
         didSet {
             if splitType == "equal" {
                 distributeAmountEqual()
@@ -276,8 +502,8 @@ class ExpenseModel {
         }
     }
     
-    var date: Date
-    var persons: [ExpensePerson]
+    @Published var date: Date
+    @Published var persons: [ExpensePerson]
     var id:String
     
     init(id:String) {
@@ -304,7 +530,7 @@ class ExpenseModel {
     }
     
     func saveExpense() {
-        //todo
+        self.description = "test"
     }
     
 }
@@ -323,9 +549,9 @@ class ExpensePerson: Identifiable {
 
 
 //START REPORT PAGE
-class ReportModel {
+class ReportModel:ObservableObject {
     var id: String
-    var reports: [SingleReport]
+    @Published var reports: [SingleReport]
     
     init(id:String) {
         self.id = id

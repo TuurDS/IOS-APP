@@ -33,6 +33,7 @@ struct Login: View {
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var loginModel = ExpenseCalculatorModel.shared.loginModel
     let sidebarSize: CGFloat = 0.4
     
     var landscape: some View {
@@ -77,29 +78,29 @@ struct Login: View {
                         
                         VStack(alignment: .center) {
                             HighlightableTextField(
-                                text: $model.loginModel.login,
+                                text: $loginModel.login,
                                 placeholder: "Username",
                                 isSecure: false,
-                                focusedField: $model.loginModel.focusedField ,
+                                focusedField: $loginModel.focusedField ,
                                 id: "1")
                             .frame(maxWidth: 300)
                             HighlightableTextField(
-                                text: $model.loginModel.password,
+                                text: $loginModel.password,
                                 placeholder: "Password",
                                 isSecure: true,
-                                focusedField: $model.loginModel.focusedField,
+                                focusedField: $loginModel.focusedField,
                                 id: "2")
                             .frame(maxWidth: 300)
                         }
                         .padding(.horizontal, 16)
                         
-                        Text(model.loginModel.errorText)
+                        Text(loginModel.errorText)
                             .font(.callout)
                             .foregroundColor(.red)
                             .padding(.bottom, 16)
-                            .opacity(model.loginModel.errorText.isEmpty ? 0 : 1)
+                            .opacity(loginModel.errorText.isEmpty ? 0 : 1)
                         
-                        Button(action: model.loginModel.Login) {
+                        Button(action: loginModel.Login) {
                             Text("Log In")
                                 .padding(.vertical, 16)
                                 .padding(.horizontal, 32)
@@ -126,30 +127,30 @@ struct Login: View {
                 
                 VStack(alignment: .center) {
                     HighlightableTextField(
-                        text: $model.loginModel.login,
+                        text: $loginModel.login,
                         placeholder: "Username",
                         isSecure: false,
-                        focusedField: $model.loginModel.focusedField ,
+                        focusedField: $loginModel.focusedField ,
                         id: "1")
                     .frame(maxWidth: 400)
                     HighlightableTextField(
-                        text: $model.loginModel.password,
+                        text: $loginModel.password,
                         placeholder: "Password",
                         isSecure: true,
-                        focusedField: $model.loginModel.focusedField,
+                        focusedField: $loginModel.focusedField,
                         id: "2")
                     .frame(maxWidth: 400)
                 }
                 .padding(.horizontal, 16)
                 
-                Text(model.loginModel.errorText)
+                Text(loginModel.errorText)
                     .font(.callout)
                     .foregroundColor(.red)
                     .padding(.bottom, 16)
-                    .opacity(model.loginModel.errorText.isEmpty ? 0 : 1)
+                    .opacity(loginModel.errorText.isEmpty ? 0 : 1)
                 
                 
-                Button(action: model.loginModel.Login) {
+                Button(action: loginModel.Login) {
                     Text("Log In")
                         .padding(.vertical, 16)
                         .padding(.horizontal, 32)

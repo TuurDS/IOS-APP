@@ -19,6 +19,7 @@ struct Events: View {
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var eventsModel = ExpenseCalculatorModel.shared.eventsModel
     let sidebarSize: CGFloat = 0.40
     
     var landscape: some View {
@@ -33,7 +34,7 @@ struct Events: View {
                             .font(.title)
                             .fontWeight(.medium)
                         Spacer()
-                        Button(action: model.eventsModel.addEvent) {
+                        Button(action: eventsModel.addEvent) {
                             Image(systemName: "plus")
                                 .font(.title)
                                 .fontWeight(.medium)
@@ -43,7 +44,7 @@ struct Events: View {
                     .frame(width: 200)
                     
                     //pinned unpinned
-                    PinnedUnpinnedButtons(isPinned: $model.eventsModel.isPinned, basecolor:Color("basecolor"),strokeColor: .white)
+                    PinnedUnpinnedButtons(isPinned: $eventsModel.isPinned, basecolor:Color("basecolor"),strokeColor: .white)
                     
                     Spacer()
                     
@@ -69,14 +70,16 @@ struct Events: View {
                 VStack(alignment: .center) {
                     
                     ScrollView {
-                        ForEach(model.eventsModel.items) { item in
-                            RoundedRectangleCard(title: item.title, number: item.number, description: item.description, icon: item.icon, iconColor: item.iconColor, isPinned: item.isPinned, id: item.id, PinEvent: {
-                                model.eventsModel.pinEvent(id: item.id)
+                        ForEach(eventsModel.items.enumerated().map { $0 }, id: \.element.id) { index, item in
+                            RoundedRectangleCard(title: item.title, number: String(index + 1), description: item.description, icon: item.icon, isPinned: item.isPinned, id: item.id, PinEvent: {
+                                eventsModel.pinEvent(id: item.id)
                             })
-                            .onTapGesture {
-                                model.eventsModel.navigateToSingleEvent(id:item.id)
-                            }
+                                .padding(.bottom,10)
+                                .onTapGesture {
+                                    eventsModel.navigateToSingleEvent(id:item.id)
+                                }
                         }
+
                     }
                     
                 }
@@ -105,7 +108,7 @@ struct Events: View {
                     .font(.title)
                     .fontWeight(.medium)
                 Spacer()
-                Button(action: model.eventsModel.addEvent) {
+                Button(action: eventsModel.addEvent) {
                     Image(systemName: "plus")
                         .font(.title)
                         .foregroundColor(Color("basecolor"))
@@ -114,18 +117,19 @@ struct Events: View {
             .padding(.horizontal, 8)
             
             //pinned unpinned
-            PinnedUnpinnedButtons(isPinned: $model.eventsModel.isPinned,basecolor:Color("accentcolor"), strokeColor: Color("basecolor"))
+            PinnedUnpinnedButtons(isPinned: $eventsModel.isPinned,basecolor:Color("accentcolor"), strokeColor: Color("basecolor"))
             
             ScrollView {
-                ForEach(model.eventsModel.items) { item in
-                    RoundedRectangleCard(title: item.title, number: item.number, description: item.description, icon: item.icon, iconColor: item.iconColor, isPinned: item.isPinned, id: item.id, PinEvent: {
-                        model.eventsModel.pinEvent(id: item.id)
+                ForEach(eventsModel.items.enumerated().map { $0 }, id: \.element.id) { index, item in
+                    RoundedRectangleCard(title: item.title, number: String(index + 1), description: item.description, icon: item.icon,isPinned: item.isPinned, id: item.id, PinEvent: {
+                        eventsModel.pinEvent(id: item.id)
                     })
                         .padding(.bottom,10)
                         .onTapGesture {
-                            model.eventsModel.navigateToSingleEvent(id:item.id)
+                            eventsModel.navigateToSingleEvent(id:item.id)
                         }
                 }
+
             }
             .padding(.all,10)
         }
@@ -179,7 +183,6 @@ struct RoundedRectangleCard: View,Identifiable {
     var number: String
     var description: String
     var icon: String
-    var iconColor: Color
     var isPinned: Bool
     var id: String
     var PinEvent: () -> Void
@@ -206,8 +209,8 @@ struct RoundedRectangleCard: View,Identifiable {
                     Spacer()
                     IconButton(
                         icon:"pin.fill",
-                        basecolor: isPinned ? Color("accentcolor"): .white,
-                        accentcolor: isPinned ? .white: Color("accentcolor"),
+                        basecolor: isPinned ? .white: Color("accentcolor"),
+                        accentcolor: isPinned ? Color("accentcolor"): .white,
                         action: PinEvent,
                         font:.title2)
                     

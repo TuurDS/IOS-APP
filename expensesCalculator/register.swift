@@ -18,8 +18,8 @@ struct Register: View {
         }
     }
     
-    
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var registerModel = ExpenseCalculatorModel.shared.registerModel
     let sidebarSize: CGFloat = 0.4
     
     var landscape: some View {
@@ -62,36 +62,36 @@ struct Register: View {
                     
                     VStack(alignment: .center) {
                         HighlightableTextField(
-                            text: $model.registerModel.login,
+                            text: $registerModel.login,
                             placeholder: "Username",
                             isSecure: false,
-                            focusedField: $model.registerModel.focusedField ,
+                            focusedField: $registerModel.focusedField ,
                             id: "1")
                         .frame(maxWidth: 300)
                         HighlightableTextField(
-                            text: $model.registerModel.password,
+                            text: $registerModel.password,
                             placeholder: "Password",
                             isSecure: true,
-                            focusedField: $model.registerModel.focusedField,
+                            focusedField: $registerModel.focusedField,
                             id: "2")
                         .frame(maxWidth: 300)
                         HighlightableTextField(
-                            text: $model.registerModel.passwordConfirm,
+                            text: $registerModel.passwordConfirm,
                             placeholder: "Confirm Password",
                             isSecure: true,
-                            focusedField: $model.registerModel.focusedField,
+                            focusedField: $registerModel.focusedField,
                             id: "3")
                         .frame(maxWidth:300)
                     }
                     .padding(.horizontal, 16)
                     
-                    Text(model.registerModel.errorText)
+                    Text(registerModel.errorText)
                         .font(.callout)
                         .foregroundColor(.red)
                         .padding(.bottom, 16)
-                        .opacity(model.registerModel.errorText.isEmpty ? 0 : 1)
+                        .opacity(registerModel.errorText.isEmpty ? 0 : 1)
                     
-                    Button(action: model.registerModel.Register) {
+                    Button(action: registerModel.Register) {
                         Text("Register")
                             .padding(.vertical, 16)
                             .padding(.horizontal, 32)
@@ -120,36 +120,36 @@ struct Register: View {
 
             VStack(alignment: .center) {
                 HighlightableTextField(
-                    text: $model.registerModel.login,
+                    text: $registerModel.login,
                     placeholder: "Username",
                     isSecure: false,
-                    focusedField: $model.registerModel.focusedField ,
+                    focusedField: $registerModel.focusedField ,
                     id: "1")
                     .frame(maxWidth: 400)
                 HighlightableTextField(
-                    text: $model.registerModel.password,
+                    text: $registerModel.password,
                     placeholder: "Password",
                     isSecure: true,
-                    focusedField: $model.registerModel.focusedField,
+                    focusedField: $registerModel.focusedField,
                     id: "2")
                     .frame(maxWidth: 400)
                 HighlightableTextField(
-                    text: $model.registerModel.passwordConfirm,
+                    text: $registerModel.passwordConfirm,
                     placeholder: "Confirm Password",
                     isSecure: true,
-                    focusedField: $model.registerModel.focusedField,
+                    focusedField: $registerModel.focusedField,
                     id: "3")
                     .frame(maxWidth: 400)
             }
             .padding(.horizontal, 16)
 
-            Text(model.registerModel.errorText)
+            Text(registerModel.errorText)
                 .font(.callout)
                 .foregroundColor(.red)
                 .padding(.bottom, 16)
-                .opacity(model.registerModel.errorText.isEmpty ? 0 : 1)
+                .opacity(registerModel.errorText.isEmpty ? 0 : 1)
 
-            Button(action: model.registerModel.Register) {
+            Button(action: registerModel.Register) {
                 Text("Register")
                     .padding(.vertical, 16)
                     .padding(.horizontal, 32)
