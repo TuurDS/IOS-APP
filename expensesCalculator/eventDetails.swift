@@ -20,6 +20,7 @@ struct EventDetails: View {
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var eventDetailsModel = ExpenseCalculatorModel.shared.eventDetailsModel
     let sidebarSize: CGFloat = 0.35
     
     var landscape: some View {
@@ -34,7 +35,7 @@ struct EventDetails: View {
                             .fontWeight(.medium)
                         Spacer()
                         HStack {
-                            Button(action: model.eventDetailsModel.saveDetails) {
+                            Button(action: eventDetailsModel.saveDetails) {
                                 Text("save")
                                     .font(.footnote)
                                     .fontWeight(.bold)
@@ -54,7 +55,7 @@ struct EventDetails: View {
                                 .font(.headline)
                             Spacer()
                         }
-                        TextField("", text: $model.eventDetailsModel.eventname)
+                        TextField("", text: $eventDetailsModel.eventname)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -65,7 +66,7 @@ struct EventDetails: View {
                             Spacer()
                         }
                         .padding(.top, 10)
-                        TextEditor(text: $model.eventDetailsModel.eventdescription)
+                        TextEditor(text: $eventDetailsModel.eventdescription)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -107,13 +108,13 @@ struct EventDetails: View {
                     ScrollView {
                         //add
                         HStack {
-                            InvertedTextField(text: $model.eventDetailsModel.newUser, placeholder: "name", id: "1")
+                            InvertedTextField(text: $eventDetailsModel.newUser, placeholder: "name", id: "1")
                             Spacer()
                             IconButton(
                                 icon:"plus",
                                 basecolor: Color("accentcolor"),
                                 accentcolor: .white,
-                                action: model.eventDetailsModel.addPerson,
+                                action: eventDetailsModel.addPerson,
                                 font:.title)
                         }
                         .padding(.all, 10)
@@ -122,7 +123,7 @@ struct EventDetails: View {
                         .cornerRadius(5)
                         .padding(.bottom,10)
                         //list
-                        ForEach(model.eventDetailsModel.persons) { person in
+                        ForEach(eventDetailsModel.persons) { person in
                             Person(name:person.name,id:person.id)
                                 .padding(.bottom,10)
                         }
@@ -147,7 +148,7 @@ struct EventDetails: View {
                     .fontWeight(.medium)
                 Spacer()
                 HStack {
-                    Button(action: model.eventDetailsModel.saveDetails) {
+                    Button(action: eventDetailsModel.saveDetails) {
                         Text("save")
                             .font(.footnote)
                             .fontWeight(.bold)
@@ -172,7 +173,7 @@ struct EventDetails: View {
                         .font(.headline)
                     Spacer()
                 }
-                TextField("", text: $model.eventDetailsModel.eventname)
+                TextField("", text: $eventDetailsModel.eventname)
                     .padding(.horizontal, 15)
                     .frame(height: 50)
                     .overlay(
@@ -186,7 +187,7 @@ struct EventDetails: View {
                     Spacer()
                 }
                 .padding(.top, 10)
-                TextEditor(text: $model.eventDetailsModel.eventdescription)
+                TextEditor(text: $eventDetailsModel.eventdescription)
                     .padding(.horizontal, 15)
                     .frame(height: 75)
                     .overlay(
@@ -208,15 +209,13 @@ struct EventDetails: View {
             ScrollView {
                 //add
                 HStack {
-                    InvertedTextField(text: $model.eventDetailsModel.newUser, placeholder: "name", id: "1")
+                    InvertedTextField(text: $eventDetailsModel.newUser, placeholder: "name", id: "1")
                     Spacer()
                     IconButton(
                         icon:"plus",
                         basecolor: Color("accentcolor"),
                         accentcolor: .white,
-                        action:  {
-                            print("tapped icon")
-                        },
+                        action: eventDetailsModel.addPerson,
                         font:.title)
                 }
                 .padding(.all, 10)
@@ -225,7 +224,7 @@ struct EventDetails: View {
                 .cornerRadius(5)
                 .padding(.bottom,10)
                 //list
-                ForEach(model.eventDetailsModel.persons) { person in
+                ForEach(eventDetailsModel.persons) { person in
                     Person(name:person.name,id:person.id)
                         .padding(.bottom,10)
                 }

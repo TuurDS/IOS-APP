@@ -18,9 +18,11 @@ struct Expense: View {
             }
         }
     }
-    
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var expenseModel = ExpenseCalculatorModel.shared.expenseModel
     let sidebarSize: CGFloat = 0.50
+    
+
     
     var landscape: some View {
         GeometryReader { geometry in
@@ -35,7 +37,7 @@ struct Expense: View {
                                 .fontWeight(.medium)
                             Spacer()
                             HStack {
-                                Button(action: model.expenseModel.saveExpense) {
+                                Button(action: expenseModel.saveExpense) {
                                     Text("save")
                                         .font(.footnote)
                                         .fontWeight(.bold)
@@ -50,21 +52,38 @@ struct Expense: View {
                     }
                     
                     //INPUT FIELDS PRICE AND DATE
-                    HStack(spacing:25) {
+                    HStack(spacing:15) {
                         VStack(alignment:.leading,spacing: 3) {
                             Text("Price")
                                 .fontWeight(.medium)
-                            TextField("", value: $model.expenseModel.price, formatter: numberFormatter)
+                            TextField("", value: $expenseModel.price, formatter: numberFormatter)
                                 .padding(.all,5)
                                 .foregroundColor(.black)
                                 .background(.white)
                                 .cornerRadius(5)
                         }
+                        
+                        VStack(alignment:.leading,spacing: 3) {
+                            Text("Paid")
+                            
+                                .fontWeight(.medium)
+                            Picker(selection: $expenseModel.paidPerson, label: Text("")) {
+                                ForEach(expenseModel.persons.indices) { index in
+                                    Text(expenseModel.persons[index].name)
+                                }
+                            }
+                            .accentColor(.black)
+                            .pickerStyle(.menu)
+                            .background(.white)
+                            .cornerRadius(5)
+                            .foregroundColor(Color("basecolor"))
+                        }
+                        
                         VStack(alignment:.leading,spacing: 3) {
                             Text("Date")
                                 .fontWeight(.medium)
                             
-                            DatePicker("", selection: $model.expenseModel.date, displayedComponents: .date)
+                            DatePicker("", selection: $expenseModel.date, displayedComponents: .date)
                                 .labelsHidden()
                                 .accentColor(Color("basecolor"))
                                 .background(.white)
@@ -78,7 +97,7 @@ struct Expense: View {
                         Text("Description")
                             .fontWeight(.medium)
                         
-                        TextEditor(text: $model.expenseModel.description)
+                        TextEditor(text: $expenseModel.description)
                             .padding(.all,5)
                             .foregroundColor(.black)
                             .background(.white)
@@ -91,7 +110,7 @@ struct Expense: View {
                         Text("Split Type")
                             .fontWeight(.medium)
                         
-                        SplitTypeButtons(splitType: $model.expenseModel.splitType, basecolor:Color("basecolor"),strokeColor: .white)
+                        SplitTypeButtons(splitType: $expenseModel.splitType, basecolor:Color("basecolor"),strokeColor: .white)
                             
                     }
                     
@@ -128,7 +147,7 @@ struct Expense: View {
 
                     //list of users
                     ScrollView {
-                        ForEach($model.expenseModel.persons) { ep in
+                        ForEach($expenseModel.persons) { ep in
                             HStack {
                                 Text(ep.name.wrappedValue)
                                 
@@ -140,8 +159,8 @@ struct Expense: View {
                                     .cornerRadius(5)
                                     .frame(maxWidth: 70)
                                     .multilineTextAlignment(.center)
-                                    .disabled(model.expenseModel.splitType == "equal")
-                                    .opacity(model.expenseModel.splitType == "equal" ? 0.85 : 1)
+                                    .disabled(expenseModel.splitType == "equal")
+                                    .opacity(expenseModel.splitType == "equal" ? 0.85 : 1)
                             }
                             .padding(.all, 10)
                             .background(Color("accentcolor"))
@@ -172,7 +191,7 @@ struct Expense: View {
                     .fontWeight(.medium)
                 Spacer()
                 HStack {
-                    Button(action: model.expenseModel.saveExpense) {
+                    Button(action: expenseModel.saveExpense) {
                         Text("save")
                             .font(.footnote)
                             .fontWeight(.bold)
@@ -191,11 +210,11 @@ struct Expense: View {
                 }
             }
             //INPUT FIELDS PRICE AND DATE
-            HStack(spacing:25) {
+            HStack(spacing:10) {
                 VStack(alignment:.leading,spacing: 3) {
                     Text("Price")
                         .foregroundColor(Color("basecolor"))
-                    TextField("", value: $model.expenseModel.price, formatter: numberFormatter)
+                    TextField("", value: $expenseModel.price, formatter: numberFormatter)
                         .padding(.horizontal, 15)
                         .frame(height: 40)
                         .overlay(
@@ -204,15 +223,42 @@ struct Expense: View {
                                 .frame(height: 40)
                         )
                 }
+                
+                VStack(alignment:.leading,spacing: 3) {
+                    Text("Paid")
+                        .foregroundColor(Color("basecolor"))
+                    Picker(selection: $expenseModel.paidPerson, label: Text("")) {
+                        ForEach(expenseModel.persons.indices) { index in
+                            Text(expenseModel.persons[index].name)
+                        }
+                    }
+                    .accentColor(.black)
+                    .pickerStyle(.menu)
+                    .foregroundColor(Color("basecolor"))
+                    .frame(height: 40)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Color("accentcolor"), lineWidth: 2)
+                            .frame(height: 40)
+                    )
+                }
+
+                
                 VStack(alignment:.leading,spacing: 3) {
                     Text("Date")
                         .foregroundColor(Color("basecolor"))
                     
-                    DatePicker("", selection: $model.expenseModel.date, displayedComponents: .date)
+                    DatePicker("", selection: $expenseModel.date, displayedComponents: .date)
                         .labelsHidden()
                         .accentColor(Color("basecolor"))
                         .foregroundColor(.white)
                         .cornerRadius(5)
+                        .frame(height: 40)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color("accentcolor"), lineWidth: 2)
+                                .frame(height: 40)
+                        )
                 }
                 
             }
@@ -222,7 +268,7 @@ struct Expense: View {
                 Text("Description")
                     .foregroundColor(Color("basecolor"))
                 
-                TextEditor(text: $model.expenseModel.description)
+                TextEditor(text: $expenseModel.description)
                     .padding(.horizontal, 15)
                     .frame(height: 75)
                     .overlay(
@@ -237,7 +283,7 @@ struct Expense: View {
                 Text("Split Type")
                     .foregroundColor(Color("basecolor"))
                 
-                SplitTypeButtons(splitType: $model.expenseModel.splitType, basecolor: Color("accentcolor"), strokeColor: Color("accentcolor"))
+                SplitTypeButtons(splitType: $expenseModel.splitType, basecolor: Color("accentcolor"), strokeColor: Color("accentcolor"))
                     
             }
             
@@ -251,7 +297,7 @@ struct Expense: View {
 
             //list of users
             ScrollView {
-                ForEach($model.expenseModel.persons) { ep in
+                ForEach($expenseModel.persons) { ep in
                     HStack {
                         Text(ep.name.wrappedValue)
                         
@@ -263,8 +309,8 @@ struct Expense: View {
                             .cornerRadius(5)
                             .frame(maxWidth: 70)
                             .multilineTextAlignment(.center)
-                            .disabled(model.expenseModel.splitType == "equal")
-                            .opacity(model.expenseModel.splitType == "equal" ? 0.85 : 1)
+                            .disabled(expenseModel.splitType == "equal")
+                            .opacity(expenseModel.splitType == "equal" ? 0.85 : 1)
                     }
                     .padding(.all, 10)
                     .background(Color("accentcolor"))

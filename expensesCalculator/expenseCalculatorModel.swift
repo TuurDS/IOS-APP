@@ -25,7 +25,7 @@ class Request {
         self.token = token
     }
     
-    func send(method: Method, path: String, body: Data? = nil, completion: @escaping (Result<Any, Error>) -> Void) {
+    func send(method: Method, path: String, body: Data? = nil, decodeJson: Bool = true, completion: @escaping (Result<Any, Error>) -> Void) {
         var request = URLRequest(url: baseURL.appendingPathComponent(path))
         request.httpMethod = method.rawValue
         request.httpBody = body
@@ -57,8 +57,12 @@ class Request {
             } else {
                 // handle success case
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data, options: [])
-                    completion(.success(json))
+                    if(decodeJson) {
+                        let json = try JSONSerialization.jsonObject(with: data, options: [])
+                        completion(.success(json))
+                    } else {
+                        completion(.success(data))
+                    }
                 } catch {
                     completion(.failure(error))
                 }
@@ -374,23 +378,22 @@ class EventsModelItem: Identifiable {
 //END EVENTS PAGE
 
 //START EVENT PAGE
-class EventModel:ObservableObject  {
+class EventModel:ObservableObject {
     var id: String
     @Published var name: String
     @Published var description: String
     @Published var items = [EventModelItem]()
     
+    var eventData: EventData?
+    
     init(id:String) {
         self.id = id
-        self.name = "testname"
-        self.description = "random very long description i dont know wtf hahahaha yes ofc why not ey."
-        self.items = [
-            EventModelItem(amount: 12.99, person: "Jane", description: "Grocery Shopping", id: "1"),
-            EventModelItem(amount: 56.34, person: "Bob", description: "Dinner at Restaurant", id: "2"),
-            EventModelItem(amount: 78.45, person: "Alice", description: "Rent for August", id: "3"),
-            EventModelItem(amount: 156.34, person: "Thomas", description: "Food", id: "4"),
-            EventModelItem(amount: 72.49, person: "Jake", description: "Utilities", id: "5")
-        ]
+        self.name = ""
+        self.description = ""
+        self.eventData = nil
+        if(id != "") {
+            self.fetchEventData()
+        }
     }
     
     func navigateToEventDetails(id: String) {
@@ -408,18 +411,74 @@ class EventModel:ObservableObject  {
         ExpenseCalculatorModel.shared.path.append("expense")
     }
     
+    func fetchEventData() {
+        ExpenseCalculatorModel.request.send(method: .get, path: "event/\(self.id)", decodeJson: false) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    let decoder = JSONDecoder()
+                    do {
+                        self.eventData = try decoder.decode(EventData.self, from: json as! Data)
+                        self.parseEventData()
+                    } catch {
+                        print("Error: Could not decode JSON data: \(error)")
+                    }
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
+    }
+    
+    func parseEventData() {
+        let eventData = self.eventData!
+        self.name = eventData.name
+        self.description = eventData.eventDataDescription
+        self.items = eventData.expenses.map { event in
+            EventModelItem(amount: event.amount, person: event.paid.name, description: event.expenseDescription, id: event.id)
+        }
+    }
+        
     func deleteEvent(id: String) {
-      // TODO
+        ExpenseCalculatorModel.request.send(method: .delete, path: "event/\(id)") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    ExpenseCalculatorModel.shared.eventsModel.fetchEvents()
+                    ExpenseCalculatorModel.shared.navigateBack()
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
     }
     
     func addExpense() {
-        
+        ExpenseCalculatorModel.request.send(method: .post, path: "event/expense/\(self.id)") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    self.fetchEventData()
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
     }
     
-    func removeExpense(id: String) {
-        
+    func deleteExpense(id: String) {
+        ExpenseCalculatorModel.request.send(method: .delete, path: "event/expense/\(id)") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    self.fetchEventData()
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
     }
-    
+        
 }
 
 class EventModelItem: Identifiable {
@@ -436,6 +495,45 @@ class EventModelItem: Identifiable {
   }
 }
 
+struct EventData: Codable {
+    let id, name, eventDataDescription, userID: String
+    let people: [PersonData]
+    let expenses: [ExpenseData]
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case eventDataDescription = "description"
+        case userID = "UserId"
+        case people = "People"
+        case expenses = "Expenses"
+    }
+}
+
+// MARK: - Expense
+struct ExpenseData: Codable {
+    let id, expenseDescription: String
+    let amount: Double
+    let date, splitType: String
+    let paid: PersonData
+    let includedPersons: [IncludedPerson]
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case expenseDescription = "description"
+        case amount, date, splitType, paid, includedPersons
+    }
+}
+
+// MARK: - IncludedPerson
+struct IncludedPerson: Codable {
+    let id, name: String
+    let value: Double
+}
+
+// MARK: - Person
+struct PersonData: Codable {
+    let name, id: String
+}
 
 //END EVENT PAGE
 
@@ -448,26 +546,57 @@ class EventDetailsModel:ObservableObject  {
     @Published var persons = [EventDetailsModelPersons]()
     
     init(id: String) {
-        self.id = ""
+        self.id = id
+        self.newUser = ""
         self.eventname = ""
         self.eventdescription = ""
-        self.newUser = ""
-        self.persons = [
-            EventDetailsModelPersons(name:"max",id:"1"),
-            EventDetailsModelPersons(name:"tom",id:"2"),
-            EventDetailsModelPersons(name:"jerry",id:"3"),
-            EventDetailsModelPersons(name:"duncan",id:"4"),
-            EventDetailsModelPersons(name:"james",id:"5"),
-            EventDetailsModelPersons(name:"corey",id:"6")
-        ]
+        if(id != "") {
+            self.updateUI()
+        }
+    }
+    
+    func updateUI() {
+        self.eventname = ExpenseCalculatorModel.shared.eventModel.eventData!.name
+        self.eventdescription = ExpenseCalculatorModel.shared.eventModel.eventData!.eventDataDescription
+        self.persons = ExpenseCalculatorModel.shared.eventModel.eventData!.people.map { person in
+            EventDetailsModelPersons(name: person.name, id: person.id)
+        }
     }
     
     func saveDetails() {
-        //todo
+        // Create an instance of EventDetailsBody
+        let body = EventDetailsBody(id: self.id, name: self.eventname, eventDetailsBodyDescription: self.eventdescription, people: self.persons.map { $0.name })
+        
+        // Encode the EventDetailsBody instance to JSON data
+        let bodyData = try? JSONEncoder().encode(body)
+        
+        // Send a PUT request to the /event/details endpoint with the JSON data as the request body
+        ExpenseCalculatorModel.request.send(method: .put, path: "event/details", body: bodyData) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    ExpenseCalculatorModel.shared.eventsModel.fetchEvents()
+                    ExpenseCalculatorModel.shared.eventModel.fetchEventData()
+                    ExpenseCalculatorModel.shared.navigateBack()
+                case .failure(let error):
+                    print("Error saving event details: \(error)")
+                }
+            }
+        }
     }
+
+    
     func addPerson() {
-        //todo
+        guard !newUser.isEmpty, newUser.count >= 4 else {
+            return
+        }
+        
+        let newPersonId = UUID().uuidString
+        let newPerson = EventDetailsModelPersons(name: newUser, id: newPersonId)
+        persons.append(newPerson)
+        newUser = ""
     }
+
 }
 
 class EventDetailsModelPersons: Identifiable {
@@ -480,6 +609,16 @@ class EventDetailsModelPersons: Identifiable {
     }
 }
 
+struct EventDetailsBody: Codable {
+    let id, name, eventDetailsBodyDescription: String
+    let people: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case eventDetailsBodyDescription = "description"
+        case people = "People"
+    }
+}
 //END EVENTDETAILS PAGE
 
 //START EXPENSE PAGE
@@ -504,12 +643,14 @@ class ExpenseModel: ObservableObject {
     
     @Published var date: Date
     @Published var persons: [ExpensePerson]
+    @Published var paidPerson: Int
     var id:String
     
     init(id:String) {
         self.price = 102.54
         self.description = "this is the description of the expense"
         self.splitType = "percentage"
+        self.paidPerson = 0
         self.date = Date()
         self.persons = [
             ExpensePerson(name: "Alice", value: 30.20),

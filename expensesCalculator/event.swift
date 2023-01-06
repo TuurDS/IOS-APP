@@ -20,6 +20,7 @@ struct Event: View {
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var eventModel = ExpenseCalculatorModel.shared.eventModel
     let sidebarSize: CGFloat = 0.35
     
     var landscape: some View {
@@ -36,26 +37,26 @@ struct Event: View {
                         Spacer()
                         HStack {
                             IconButton(icon:"pencil",basecolor:.white,accentcolor:Color("basecolor")) {
-                                model.eventModel.navigateToEventDetails(id:model.eventModel.id)
+                                eventModel.navigateToEventDetails(id:eventModel.id)
                             }
                             IconButton(icon:"chart.bar.xaxis",basecolor:.white,accentcolor:Color("basecolor")) {
-                                model.eventModel.navigateToReport(id:model.eventModel.id)
+                                eventModel.navigateToReport(id:eventModel.id)
                             }
                             IconButton(icon:"trash",basecolor:.white,accentcolor:Color("basecolor")) {
-                                model.eventModel.deleteEvent(id:model.eventModel.id)
+                                eventModel.deleteEvent(id:eventModel.id)
                             }
                         }
                     }
                     
                     VStack(spacing: 10) {
                         HStack {
-                            Text(model.eventModel.name)
+                            Text(eventModel.name)
                                 .font(.headline)
                                 .underline()
                             Spacer()
                         }
                         HStack {
-                            Text(model.eventModel.description)
+                            Text(eventModel.description)
                             Spacer()
                         }
                     }
@@ -88,7 +89,7 @@ struct Event: View {
                         Text("Expenses")
                             .font(.title2)
                             .fontWeight(.medium)
-                        Button(action: model.eventModel.addExpense) {
+                        Button(action: eventModel.addExpense) {
                             Image(systemName: "plus")
                                 .font(.title)
                                 .foregroundColor(Color("basecolor"))
@@ -97,13 +98,13 @@ struct Event: View {
                     }
                     //list
                     ScrollView {
-                        ForEach(model.eventModel.items) { item in
+                        ForEach(eventModel.items) { item in
                             ExpenseCard(amount: item.amount, username: item.person, description: item.description, id: item.id, deleteExpense: {
-                                model.eventModel.deleteEvent(id: item.id)
+                                eventModel.deleteExpense(id: item.id)
                             })
                             .padding(.bottom,10)
                             .onTapGesture {
-                                model.eventModel.navigateToExpense(id: item.id)
+                                eventModel.navigateToExpense(id: item.id)
                             }
                         }
                     }
@@ -128,13 +129,13 @@ struct Event: View {
                 Spacer()
                 HStack {
                     IconButton(icon:"pencil",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        model.eventModel.navigateToEventDetails(id:model.eventModel.id)
+                        eventModel.navigateToEventDetails(id:eventModel.id)
                     }
                     IconButton(icon:"chart.bar.xaxis",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        model.eventModel.navigateToReport(id:model.eventModel.id)
+                        eventModel.navigateToReport(id:eventModel.id)
                     }
                     IconButton(icon:"trash",basecolor:Color("accentcolor"),accentcolor:.white) {
-                        model.eventModel.deleteEvent(id:model.eventModel.id)
+                        eventModel.deleteEvent(id:eventModel.id)
                     }
                     
                     ArrowButton(text:"back",basecolor:Color("accentcolor"),accentcolor:.white) {
@@ -147,14 +148,14 @@ struct Event: View {
             //name and description
             VStack(spacing: 10) {
                 HStack {
-                    Text(model.eventModel.name)
+                    Text(eventModel.name)
                         .font(.headline)
                         .underline()
                         .foregroundColor(Color("lightgrey"))
                     Spacer()
                 }
                 HStack {
-                    Text(model.eventModel.description)
+                    Text(eventModel.description)
                         .foregroundColor(Color("lightgrey"))
                     Spacer()
                 }
@@ -167,7 +168,7 @@ struct Event: View {
                     .font(.title2)
                     .fontWeight(.medium)
                 Spacer()
-                Button(action: model.eventModel.addExpense) {
+                Button(action: eventModel.addExpense) {
                     Image(systemName: "plus")
                         .font(.title)
                         .foregroundColor(Color("basecolor"))
@@ -175,13 +176,13 @@ struct Event: View {
             }
             //list
             ScrollView {
-                ForEach(model.eventModel.items) { item in
+                ForEach(eventModel.items) { item in
                     ExpenseCard(amount: item.amount, username: item.person, description: item.description, id: item.id, deleteExpense: {
-                        model.eventModel.deleteEvent(id: item.id)
+                        eventModel.deleteExpense(id: item.id)
                     })
                     .padding(.bottom,10)
                     .onTapGesture {
-                        model.eventModel.navigateToExpense(id: item.id)
+                        eventModel.navigateToExpense(id: item.id)
                     }
                 }
             }
