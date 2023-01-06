@@ -10,12 +10,15 @@ import SwiftUI
 struct Expense: View {
     
     var body: some View {
-        GeometryReader { geometry in
-            if geometry.size.height > geometry.size.width {
-                portrait
-            } else {
-                landscape
+        ZStack {
+            GeometryReader { geometry in
+                if geometry.size.height > geometry.size.width {
+                    portrait
+                } else {
+                    landscape
+                }
             }
+            PopUpWindow(title: "Error", message: "make sure the values add up to the total amount or percetage!", buttonText: "OK", show: $expenseModel.showErrorPopup)
         }
     }
     @EnvironmentObject var model: ExpenseCalculatorModel
@@ -61,6 +64,7 @@ struct Expense: View {
                                 .foregroundColor(.black)
                                 .background(.white)
                                 .cornerRadius(5)
+                                .frame(height: 40)
                         }
                         
                         VStack(alignment:.leading,spacing: 3) {
@@ -77,6 +81,7 @@ struct Expense: View {
                             .background(.white)
                             .cornerRadius(5)
                             .foregroundColor(Color("basecolor"))
+                            .frame(height: 40)
                         }
                         
                         VStack(alignment:.leading,spacing: 3) {
@@ -88,6 +93,7 @@ struct Expense: View {
                                 .accentColor(Color("basecolor"))
                                 .background(.white)
                                 .cornerRadius(5)
+                                .frame(height: 40)
                         }
                         
                     }
