@@ -763,18 +763,38 @@ class ExpensePerson: Identifiable {
 //START REPORT PAGE
 class ReportModel:ObservableObject {
     var id: String
-    @Published var reports: [SingleReport]
+    @Published var reports = [SingleReport]()
     
     init(id:String) {
         self.id = id
-        self.reports = [
-            SingleReport(from: "Alice",to: "Bob",amount: 14.68, id: "1"),
-            SingleReport(from: "jNic",to: "leah",amount: 145.54, id: "2"),
-            SingleReport(from: "jonas",to: "jeff",amount: 23.16, id: "3"),
-            SingleReport(from: "thomas",to: "arthur",amount: 0.68, id: "4"),
-        ]
+        if(id != "") {
+            self.fetchReport()
+        }
+    }
+    
+    func fetchReport() {
+        ExpenseCalculatorModel.request.send(method: .get, path: "event/report/\(self.id)", decodeJson: false) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let json):
+                    let decoder = JSONDecoder()
+                    do {
+                        let reportReturnBody = try decoder.decode(ReportReturnBody.self, from: json as! Data)
+                        let singleReports = reportReturnBody.map { SingleReport(from: $0.from, to: $0.to, amount: $0.amount, id: UUID().uuidString) }
+                        self.reports = singleReports
+                    } catch {
+                        print("Error: Could not decode JSON data: \(error)")
+                    }
+
+                case .failure(let error as NSError):
+                    print(error)
+                }
+            }
+        }
     }
 }
+
+
 
 class SingleReport: Identifiable {
     var from: String
@@ -789,4 +809,13 @@ class SingleReport: Identifiable {
         self.id = id
     }
 }
+
+// MARK: - ReportReturnBodyElement
+struct ReportReturnBodyElement: Codable {
+    let from, to: String
+    let amount: Double
+}
+
+typealias ReportReturnBody = [ReportReturnBodyElement]
+
 //END REPORT PAGE

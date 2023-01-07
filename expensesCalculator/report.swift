@@ -20,6 +20,7 @@ struct Report: View {
     }
     
     @EnvironmentObject var model: ExpenseCalculatorModel
+    @ObservedObject var reportModel = ExpenseCalculatorModel.shared.reportModel
     let sidebarSize: CGFloat = 0.35
     
     var landscape: some View {
@@ -62,7 +63,7 @@ struct Report: View {
 
                     //list of users
                     ScrollView {
-                        ForEach($model.reportModel.reports) { report in
+                        ForEach($reportModel.reports) { report in
                             HStack {
                                 Text(report.from.wrappedValue)
                                     .frame(width: 100)
@@ -134,7 +135,7 @@ struct Report: View {
 
             //list of users
             ScrollView {
-                ForEach($model.reportModel.reports) { report in
+                ForEach($reportModel.reports) { report in
                     HStack {
                         Text(report.from.wrappedValue)
                             .frame(width: 100)
