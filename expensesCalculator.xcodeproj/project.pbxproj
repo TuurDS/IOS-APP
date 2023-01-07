@@ -9,6 +9,14 @@
 /* Begin PBXBuildFile section */
 		BB4F124729626C260028865B /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4F124629626C260028865B /* extensions.swift */; };
 		BB4F124929626C7D0028865B /* register.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4F124829626C7D0028865B /* register.swift */; };
+		BB5D66E52968FDCE000C2210 /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66E42968FDCE000C2210 /* LoginModel.swift */; };
+		BB5D66E82968FE29000C2210 /* registerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66E72968FE29000C2210 /* registerModel.swift */; };
+		BB5D66EB2968FE7A000C2210 /* eventsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66EA2968FE7A000C2210 /* eventsModel.swift */; };
+		BB5D66EE2968FEEE000C2210 /* eventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66ED2968FEEE000C2210 /* eventModel.swift */; };
+		BB5D66F12968FF42000C2210 /* eventDetailsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66F02968FF42000C2210 /* eventDetailsModel.swift */; };
+		BB5D66F42968FF81000C2210 /* expenseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66F32968FF81000C2210 /* expenseModel.swift */; };
+		BB5D66F72968FFC0000C2210 /* reportModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66F62968FFC0000C2210 /* reportModel.swift */; };
+		BB5D66F92968FFFA000C2210 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D66F82968FFFA000C2210 /* Request.swift */; };
 		BB7565362965DE4200958ED1 /* expenseCalculatorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */; };
 		BBA303B829633EED00C6380E /* event.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA303B729633EED00C6380E /* event.swift */; };
 		BBA828FF2962E2E10065B367 /* events.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA828FE2962E2E10065B367 /* events.swift */; };
@@ -25,6 +33,14 @@
 /* Begin PBXFileReference section */
 		BB4F124629626C260028865B /* extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		BB4F124829626C7D0028865B /* register.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = register.swift; sourceTree = "<group>"; };
+		BB5D66E42968FDCE000C2210 /* LoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginModel.swift; sourceTree = "<group>"; };
+		BB5D66E72968FE29000C2210 /* registerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = registerModel.swift; sourceTree = "<group>"; };
+		BB5D66EA2968FE7A000C2210 /* eventsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eventsModel.swift; sourceTree = "<group>"; };
+		BB5D66ED2968FEEE000C2210 /* eventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eventModel.swift; sourceTree = "<group>"; };
+		BB5D66F02968FF42000C2210 /* eventDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eventDetailsModel.swift; sourceTree = "<group>"; };
+		BB5D66F32968FF81000C2210 /* expenseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = expenseModel.swift; sourceTree = "<group>"; };
+		BB5D66F62968FFC0000C2210 /* reportModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = reportModel.swift; sourceTree = "<group>"; };
+		BB5D66F82968FFFA000C2210 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = expenseCalculatorModel.swift; sourceTree = "<group>"; };
 		BBA303B729633EED00C6380E /* event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = event.swift; sourceTree = "<group>"; };
 		BBA828FE2962E2E10065B367 /* events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = events.swift; sourceTree = "<group>"; };
@@ -50,6 +66,80 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BB5D66E22968FD6A000C2210 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */,
+				BB5D66F82968FFFA000C2210 /* Request.swift */,
+				BBA92724296237390031A4D4 /* UIcomponents.swift */,
+				BB4F124629626C260028865B /* extensions.swift */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		BB5D66E32968FD9C000C2210 /* login */ = {
+			isa = PBXGroup;
+			children = (
+				BBD6B487295E03CF00C13F3A /* login.swift */,
+				BB5D66E42968FDCE000C2210 /* LoginModel.swift */,
+			);
+			path = login;
+			sourceTree = "<group>";
+		};
+		BB5D66E62968FE13000C2210 /* register */ = {
+			isa = PBXGroup;
+			children = (
+				BB4F124829626C7D0028865B /* register.swift */,
+				BB5D66E72968FE29000C2210 /* registerModel.swift */,
+			);
+			path = register;
+			sourceTree = "<group>";
+		};
+		BB5D66E92968FE5F000C2210 /* events */ = {
+			isa = PBXGroup;
+			children = (
+				BBA828FE2962E2E10065B367 /* events.swift */,
+				BB5D66EA2968FE7A000C2210 /* eventsModel.swift */,
+			);
+			path = events;
+			sourceTree = "<group>";
+		};
+		BB5D66EC2968FEBF000C2210 /* event */ = {
+			isa = PBXGroup;
+			children = (
+				BBA303B729633EED00C6380E /* event.swift */,
+				BB5D66ED2968FEEE000C2210 /* eventModel.swift */,
+			);
+			path = event;
+			sourceTree = "<group>";
+		};
+		BB5D66EF2968FF23000C2210 /* eventDetails */ = {
+			isa = PBXGroup;
+			children = (
+				BBAB3DA429645DBD00634635 /* eventDetails.swift */,
+				BB5D66F02968FF42000C2210 /* eventDetailsModel.swift */,
+			);
+			path = eventDetails;
+			sourceTree = "<group>";
+		};
+		BB5D66F22968FF69000C2210 /* expense */ = {
+			isa = PBXGroup;
+			children = (
+				BBAB3DA629647D6900634635 /* expense.swift */,
+				BB5D66F32968FF81000C2210 /* expenseModel.swift */,
+			);
+			path = expense;
+			sourceTree = "<group>";
+		};
+		BB5D66F52968FFA7000C2210 /* report */ = {
+			isa = PBXGroup;
+			children = (
+				BBC7881A29650B9700EAAFEC /* report.swift */,
+				BB5D66F62968FFC0000C2210 /* reportModel.swift */,
+			);
+			path = report;
+			sourceTree = "<group>";
+		};
 		BBD6B479295E03CF00C13F3A = {
 			isa = PBXGroup;
 			children = (
@@ -69,17 +159,15 @@
 		BBD6B484295E03CF00C13F3A /* expensesCalculator */ = {
 			isa = PBXGroup;
 			children = (
+				BB5D66E32968FD9C000C2210 /* login */,
+				BB5D66E62968FE13000C2210 /* register */,
+				BB5D66E92968FE5F000C2210 /* events */,
+				BB5D66EC2968FEBF000C2210 /* event */,
+				BB5D66EF2968FF23000C2210 /* eventDetails */,
+				BB5D66F22968FF69000C2210 /* expense */,
+				BB5D66F52968FFA7000C2210 /* report */,
+				BB5D66E22968FD6A000C2210 /* shared */,
 				BBD6B485295E03CF00C13F3A /* expensesCalculator.swift */,
-				BB7565352965DE4200958ED1 /* expenseCalculatorModel.swift */,
-				BBD6B487295E03CF00C13F3A /* login.swift */,
-				BB4F124829626C7D0028865B /* register.swift */,
-				BBA828FE2962E2E10065B367 /* events.swift */,
-				BBA303B729633EED00C6380E /* event.swift */,
-				BBAB3DA429645DBD00634635 /* eventDetails.swift */,
-				BBAB3DA629647D6900634635 /* expense.swift */,
-				BBC7881A29650B9700EAAFEC /* report.swift */,
-				BBA92724296237390031A4D4 /* UIcomponents.swift */,
-				BB4F124629626C260028865B /* extensions.swift */,
 				BBD6B489295E03D000C13F3A /* Assets.xcassets */,
 				BBD6B48B295E03D000C13F3A /* Preview Content */,
 			);
@@ -165,13 +253,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBA828FF2962E2E10065B367 /* events.swift in Sources */,
+				BB5D66E52968FDCE000C2210 /* LoginModel.swift in Sources */,
 				BBA92725296237390031A4D4 /* UIcomponents.swift in Sources */,
+				BB5D66E82968FE29000C2210 /* registerModel.swift in Sources */,
 				BBD6B488295E03CF00C13F3A /* login.swift in Sources */,
+				BB5D66F42968FF81000C2210 /* expenseModel.swift in Sources */,
 				BBD6B486295E03CF00C13F3A /* expensesCalculator.swift in Sources */,
 				BB4F124729626C260028865B /* extensions.swift in Sources */,
 				BBAB3DA529645DBD00634635 /* eventDetails.swift in Sources */,
 				BBAB3DA729647D6900634635 /* expense.swift in Sources */,
+				BB5D66EE2968FEEE000C2210 /* eventModel.swift in Sources */,
 				BB7565362965DE4200958ED1 /* expenseCalculatorModel.swift in Sources */,
+				BB5D66F92968FFFA000C2210 /* Request.swift in Sources */,
+				BB5D66F12968FF42000C2210 /* eventDetailsModel.swift in Sources */,
+				BB5D66F72968FFC0000C2210 /* reportModel.swift in Sources */,
+				BB5D66EB2968FE7A000C2210 /* eventsModel.swift in Sources */,
 				BBC7881B29650B9700EAAFEC /* report.swift in Sources */,
 				BBA303B829633EED00C6380E /* event.swift in Sources */,
 				BB4F124929626C7D0028865B /* register.swift in Sources */,
